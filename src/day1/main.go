@@ -2,20 +2,14 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"strings"
+	"path/filepath"
 
 	helpers "github.com/jraams/aoc-2020/helpers"
 )
 
 func main() {
-	input, err := ioutil.ReadFile("input")
-	if err != nil {
-		panic("input file not found...")
-	}
-
-	entries := strings.Split(string(input), "\n")
-	intEntries := helpers.TranslateStringArrToIntArr(entries)
+	inputPath, _ := filepath.Abs("input")
+	intEntries := helpers.GetInputValues(inputPath)
 
 	// Part 1
 	matchingEntries1 := getNEntriesThatMatchX(intEntries, 2, 2020)

@@ -1,7 +1,7 @@
 package helpers
 
 // Yoinked from:
-// https://leetcode.com/problems/iterator-for-combination/discuss/502469/Go-Beat-96.15-Solution-(with-Explaination)
+// https://leetcode.com/problems/iterator-for-combination/discuss/502469/
 
 type CombinationIterator struct {
 	Permutations *[][]int

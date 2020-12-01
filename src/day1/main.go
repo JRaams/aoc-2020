@@ -16,27 +16,27 @@ func main() {
 
 	entries := strings.Split(string(input), "\n")
 	intEntries := helpers.TranslateStringArrToIntArr(entries)
-	entry1, entry2, err := getTwoEntriesThatMatchX(intEntries, 2020)
-	if err != nil {
-		panic(fmt.Sprintf("Error getting two entries that match: %s", err.Error()))
-	}
 
-	answer1 := entry1 * entry2
-	fmt.Printf("Solution found: entry1: %d, entry2: %d, answer: %d", entry1, entry2, answer1)
+	// Part 1
+	matchingEntries1 := getNEntriesThatMatchX(intEntries, 2, 2020)
+	answer1 := helpers.MultIntArrValues(matchingEntries1)
+	fmt.Printf("Solution for part 1: %d using values: %v", answer1, matchingEntries1)
+	fmt.Println()
+
+	// Part 2
+	matchingEntries2 := getNEntriesThatMatchX(intEntries, 3, 2020)
+	answer2 := helpers.MultIntArrValues(matchingEntries2)
+	fmt.Printf("Solution for part 2: %d using values: %v", answer2, matchingEntries2)
 	fmt.Println()
 }
 
-func getTwoEntriesThatMatchX(entries []int, X int) (entry1 int, entry2 int, e error) {
-	for i := 0; i < len(entries); i++ {
-		entry := entries[i]
-
-		for j := 0; j < len(entries); j++ {
-			secondEntry := entries[j]
-
-			if entry+secondEntry == X {
-				return entry, secondEntry, nil
-			}
+func getNEntriesThatMatchX(entries []int, N int, X int) (matchingEntries []int) {
+	obj := helpers.CombinationGenerator(entries, N)
+	for obj.HasNext() {
+		nextEntries := obj.Next()
+		if helpers.SumIntArrValues(nextEntries) == X {
+			return nextEntries
 		}
 	}
-	return 0, 0, fmt.Errorf("No entries found that sum up to be %d", X)
+	panic(fmt.Errorf("No %d entries found that sum up to be %d", N, X))
 }

@@ -9,7 +9,8 @@ import (
 
 func main() {
 	inputPath, _ := filepath.Abs("input")
-	intEntries := helpers.GetInputValues(inputPath)
+	stringInputValues := helpers.GetInputValues(inputPath)
+	intEntries := helpers.TranslateStringArrToIntArr(stringInputValues)
 
 	// Part 1
 	matchingEntries1 := getNEntriesThatMatchX(intEntries, 2, 2020)

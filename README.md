@@ -2,6 +2,11 @@
 
 [Advent of code 2020](https://adventofcode.com/2020/) solutions implemented using [Go](https://golang.org)
 
+## Solutions
+
+- ✅️ Solved: day 1 - 2
+- 🕑️ TODO: day 3 - 25
+
 ## Running the code
 #### Requirements
 1. Golang (tested with v1.15.5) [Download and install](https://golang.org/doc/install)

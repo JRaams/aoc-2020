@@ -13,5 +13,11 @@ func GetInputValues(absFilePath string) (values []string) {
 	}
 
 	strValues := strings.Split(string(txt), "\n")
+
+	// Remove empty last line
+	if len(strValues[len(strValues)-1]) == 0 {
+		strValues = strValues[:len(strValues)-1]
+	}
+
 	return strValues
 }

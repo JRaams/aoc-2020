@@ -14,8 +14,12 @@ func main() {
 	inputValues := helpers.GetInputValues(inputPath)
 
 	pwentries := getPwentries(inputValues)
-	validEntries := getValidPwentries(pwentries)
-	fmt.Printf("Solution part 1: %d passwords are valid!", len(validEntries))
+	validEntriesPart1 := getValidPwentriesPart1(pwentries)
+	fmt.Printf("Solution part 1: %d passwords are valid!", len(validEntriesPart1))
+	fmt.Println()
+
+	validEntriesPart2 := getValidPwentriesPart2(pwentries)
+	fmt.Printf("Solution part 2: %d passwords are valid!", len(validEntriesPart2))
 	fmt.Println()
 }
 
@@ -26,8 +30,8 @@ type pwentry struct {
 	password string
 }
 
-func getPwentries(inputValues []string) (pwentries []pwentry) {
-	pwentries = make([]pwentry, len(inputValues))
+func getPwentries(inputValues []string) (_pwentries []pwentry) {
+	var pwentries []pwentry
 
 	for i := 0; i < len(inputValues); i++ {
 		inputParts := strings.Split(inputValues[i], " ")
@@ -44,7 +48,7 @@ func getPwentries(inputValues []string) (pwentries []pwentry) {
 	return pwentries
 }
 
-func getValidPwentries(pwentries []pwentry) (_validEntries []pwentry) {
+func getValidPwentriesPart1(pwentries []pwentry) (_validEntries []pwentry) {
 	var validEntries []pwentry
 
 	for i := 0; i < len(pwentries); i++ {
@@ -52,6 +56,22 @@ func getValidPwentries(pwentries []pwentry) (_validEntries []pwentry) {
 		c := int64(strings.Count(entry.password, entry.letter))
 
 		if c >= entry.min && c <= entry.max {
+			validEntries = append(validEntries, entry)
+		}
+	}
+
+	return validEntries
+}
+
+func getValidPwentriesPart2(pwentries []pwentry) (_validEntries []pwentry) {
+	var validEntries []pwentry
+
+	for i := 0; i < len(pwentries); i++ {
+		entry := pwentries[i]
+
+		isFirstPosValid := string(entry.password[entry.min-1]) == entry.letter
+		isSecondPosValid := string(entry.password[entry.max-1]) == entry.letter
+		if isFirstPosValid && !isSecondPosValid || !isFirstPosValid && isSecondPosValid {
 			validEntries = append(validEntries, entry)
 		}
 	}

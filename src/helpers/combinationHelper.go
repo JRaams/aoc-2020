@@ -3,15 +3,16 @@ package helpers
 // Yoinked from:
 // https://leetcode.com/problems/iterator-for-combination/discuss/502469/
 
-type CombinationIterator struct {
+type combinationIterator struct {
 	Permutations *[][]int
 	offset       int
 }
 
-func CombinationGenerator(values []int, combinationLength int) CombinationIterator {
+// Generate all possible combinations of length 'combinationLength' from int array 'values'
+func CombinationGenerator(values []int, combinationLength int) combinationIterator {
 	permutations := make([][]int, 0)
 	helper(values, combinationLength, &permutations, make([]int, 0), 0)
-	return CombinationIterator{Permutations: &permutations, offset: 0}
+	return combinationIterator{Permutations: &permutations, offset: 0}
 }
 
 func helper(values []int, l int, per *[][]int, comb []int, start int) {
@@ -24,12 +25,14 @@ func helper(values []int, l int, per *[][]int, comb []int, start int) {
 	}
 }
 
-func (this *CombinationIterator) Next() []int {
-	next := (*this.Permutations)[this.offset]
-	this.offset++
+// Get the next iteration of combinations
+func (iterator *combinationIterator) Next() []int {
+	next := (*iterator.Permutations)[iterator.offset]
+	iterator.offset++
 	return next
 }
 
-func (this *CombinationIterator) HasNext() bool {
-	return this.offset < len(*this.Permutations)
+// Check if a next interation is available
+func (iterator *combinationIterator) HasNext() bool {
+	return iterator.offset < len(*iterator.Permutations)
 }

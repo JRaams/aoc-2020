@@ -1,5 +1,7 @@
 # Advent of code 2020
 
+[![Go Report](https://goreportcard.com/badge/github.com/jraams/aoc-2020)](https://goreportcard.com/report/github.com/jraams/aoc-2020) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](./LICENSE)
+
 [Advent of code 2020](https://adventofcode.com/2020/) solutions implemented using [Go](https://golang.org)
 
 
@@ -21,5 +23,5 @@
 
 ## 2. Solutions
 
-Day 1 - 3: ✅️
-Day 4 - 25: ❌️
+    Day 1 - 3:  ✅️
+    Day 4 - 25: ❌️

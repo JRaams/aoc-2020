@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// GetInputValues reads the file at the specified input path, strips the last line (if needed) and returns the content as string array
 func GetInputValues(absFilePath string) (values []string) {
 	txt, err := ioutil.ReadFile("input")
 	if err != nil {

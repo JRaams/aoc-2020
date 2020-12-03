@@ -8,7 +8,7 @@ type combinationIterator struct {
 	offset       int
 }
 
-// Generate all possible combinations of length 'combinationLength' from int array 'values'
+// CombinationGenerator generates all possible combinations of length 'combinationLength' from int array 'values'
 func CombinationGenerator(values []int, combinationLength int) combinationIterator {
 	permutations := make([][]int, 0)
 	helper(values, combinationLength, &permutations, make([]int, 0), 0)

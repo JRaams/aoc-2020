@@ -13,8 +13,7 @@
 
 #### 1.2. Steps
 
-1. Change dir to the desired day, e.g.
-   (Assuming you are in 'aoc-2020'): `$ cd src/day1`
+1. Change dir to the desired day (Assuming you are in folder 'aoc-2020'): `$ cd calendar/day1`
 
 2. Run main.go:
    `$ go run main.go`

@@ -4,7 +4,7 @@ import (
 	"strconv"
 )
 
-// Translates an array of strings to an array of ints
+// TranslateStringArrToIntArr translates an array of strings to an array of ints
 func TranslateStringArrToIntArr(a []string) (c []int) {
 	b := make([]int, len(a))
 	for i := 0; i < len(a); i++ {
@@ -13,7 +13,7 @@ func TranslateStringArrToIntArr(a []string) (c []int) {
 	return b
 }
 
-// Sums up all values in an Int array
+// SumIntArrValues sums up all values in an Int array
 func SumIntArrValues(a []int) (b int) {
 	b = 0
 	for i := 0; i < len(a); i++ {
@@ -22,7 +22,7 @@ func SumIntArrValues(a []int) (b int) {
 	return b
 }
 
-// Returns the product of all values in Int array
+// MultIntArrValues returns the product of all values in Int array
 func MultIntArrValues(a []int) (b int) {
 	b = 1
 	for i := 0; i < len(a); i++ {

@@ -69,6 +69,7 @@ func validatePassports(passports []passport, betterValidation bool) int {
 var requiredFields = []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
 var allowedEyeColors = []string{"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}
 
+//gocyclo:ignore
 func isPassportValid(passport passport, betterValidation bool) bool {
 	// Check that required fields are present
 	for _, requiredField := range requiredFields {

@@ -16,7 +16,7 @@
 1. Change dir to the desired day (Assuming you are in folder 'aoc-2020'): `$ cd calendar/day1`
 
 2. Run main.go:
-   `$ go run main.go`
+   `$ go run .`
 
 3. Celebrate as the solutions get printed to console 🎉️
 

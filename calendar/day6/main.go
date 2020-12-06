@@ -81,7 +81,7 @@ func getGroupAnswerCount(group group, requireAll bool) int {
 		}
 	}
 
-	// If only 1 person needs to give an answer for it to count, just return the lenght of the answerMap
+	// If only 1 person needs to give an answer for it to count, just return the length of the answerMap
 	if !requireAll {
 		return len(answerMap)
 	}

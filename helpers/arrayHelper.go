@@ -56,3 +56,13 @@ func Int64ArrDifference(a []int64, b []int64) []int64 {
 	}
 	return diff
 }
+
+// All takes an array of booleans 'a' and returns whether all elements match 'toMatch'
+func All(a []bool, toMatch bool) bool {
+	for _, item := range a {
+		if item != toMatch {
+			return false
+		}
+	}
+	return true
+}

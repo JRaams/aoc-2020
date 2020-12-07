@@ -1,10 +1,18 @@
 package main
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 type bag struct {
 	name     string
-	children []*bag
+	children []childBag
+}
+
+type childBag struct {
+	amount int
+	bag    *bag
 }
 
 type bagInput struct {
@@ -26,7 +34,7 @@ func getParentBags(inputValues []string) []*bag {
 		})
 		parentBags = append(parentBags, &bag{
 			name:     temp[0],
-			children: make([]*bag, 0),
+			children: make([]childBag, 0),
 		})
 	}
 
@@ -34,13 +42,17 @@ func getParentBags(inputValues []string) []*bag {
 	for _, bagInput := range bagInputs {
 		bag := findBagByName(parentBags, bagInput.nameStr)
 		for _, childStr := range strings.Split(bagInput.childrenStr, ", ") {
+			amount, _ := strconv.Atoi(strings.Split(childStr, " ")[0])
 			bagName := strings.Join(strings.Split(childStr, " ")[1:], " ")
 			if bagName == "other" {
 				continue
 			}
-			childBag := findBagByName(parentBags, bagName)
+			cb := findBagByName(parentBags, bagName)
 
-			bag.children = append(bag.children, childBag)
+			bag.children = append(bag.children, childBag{
+				amount: amount,
+				bag:    cb,
+			})
 		}
 	}
 
@@ -71,7 +83,7 @@ func bagHasChildWithName(bag bag, name string) bool {
 		return true
 	}
 	for _, childBag := range bag.children {
-		if bagHasChildWithName(*childBag, name) {
+		if bagHasChildWithName(*childBag.bag, name) {
 			return true
 		}
 	}

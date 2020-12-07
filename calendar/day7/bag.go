@@ -6,8 +6,9 @@ import (
 )
 
 type bag struct {
-	name     string
-	children []childBag
+	name        string
+	children    []childBag
+	childrenStr string
 }
 
 type childBag struct {
@@ -15,45 +16,35 @@ type childBag struct {
 	bag    *bag
 }
 
-type bagInput struct {
-	nameStr     string
-	childrenStr string
-}
-
 func getParentBags(inputValues []string) []*bag {
 	var parentBags []*bag
 
-	// Create list of bagInputs so we have access to ALL parent names:
-	var bagInputs []bagInput
-	for _, line := range inputValues {
-		temp := strings.Split(line, " contain ")
+	// Setup parent bags
+	for _, line := range inputValues { // vibrant bronze bags contain 3 dim olive bags.
+		temp := strings.Split(line, " contain ") // ['vibrant bronze bags', '3 dim olive bags.']
 
-		bagInputs = append(bagInputs, bagInput{
-			nameStr:     temp[0],
-			childrenStr: temp[1],
-		})
 		parentBags = append(parentBags, &bag{
-			name:     temp[0],
-			children: make([]childBag, 0),
+			name:        temp[0], // 'vibrant bronze bags'
+			children:    make([]childBag, 0),
+			childrenStr: temp[1], // '3 dim olive bags.'
 		})
 	}
 
-	// Actually append all child bags to bag.children
-	for _, bagInput := range bagInputs {
-		bag := findBagByName(parentBags, bagInput.nameStr)
-		for _, childStr := range strings.Split(bagInput.childrenStr, ", ") {
+	// Add child bags (now that all parent bags have been set up)
+	for _, parentBag := range parentBags {
+		for _, childStr := range strings.Split(parentBag.childrenStr, ", ") {
 			amount, _ := strconv.Atoi(strings.Split(childStr, " ")[0])
 			bagName := strings.Join(strings.Split(childStr, " ")[1:], " ")
 			if bagName == "other" {
 				continue
 			}
-			cb := findBagByName(parentBags, bagName)
-
-			bag.children = append(bag.children, childBag{
+			bag := findBagByName(parentBags, bagName)
+			parentBag.children = append(parentBag.children, childBag{
 				amount: amount,
-				bag:    cb,
+				bag:    bag,
 			})
 		}
+		parentBag.childrenStr = ""
 	}
 
 	return parentBags

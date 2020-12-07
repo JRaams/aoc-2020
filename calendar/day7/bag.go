@@ -89,3 +89,11 @@ func bagHasChildWithName(bag bag, name string) bool {
 	}
 	return false
 }
+
+func getTotalBagSum(parentBag bag) int {
+	totalAmount := 1
+	for _, childBag := range parentBag.children {
+		totalAmount += getTotalBagSum(*childBag.bag) * childBag.amount
+	}
+	return totalAmount
+}

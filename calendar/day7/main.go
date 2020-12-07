@@ -18,7 +18,13 @@ func main() {
 	// Part 1
 	amountOfBagsWithShinyGoldChild := getAmountBagsWithName(parentBags, "shiny gold")
 	amountOfBagsWithShinyGoldChild-- // Remove 'shiny gold' parent bag from the count
-	fmt.Printf("Solution part 1: %d bag colors eventually contain at least one shiny gold bad", amountOfBagsWithShinyGoldChild)
+	fmt.Printf("Solution part 1: %d bag colors eventually contain at least one shiny gold bag", amountOfBagsWithShinyGoldChild)
+	fmt.Println()
+
+	// Part 2
+	shinyGoldParentBag := findBagByName(parentBags, "shiny gold")
+	totalAmountOfRequiredBags := getTotalBagSum(*shinyGoldParentBag) - 1 // Remove 'shiny gold' parent bag from the count
+	fmt.Printf("Solution part 2: %d individual bags are required inside the single shiny gold bag", totalAmountOfRequiredBags)
 	fmt.Println()
 }
 

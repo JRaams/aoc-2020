@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -78,5 +77,5 @@ func GetNEntriesThatMatchX(entries []int, N int, X int) (matchingEntries []int, 
 			return nextEntries, nil
 		}
 	}
-	return nil, errors.New(fmt.Sprintf("No %d entries found that sum up to be %d", N, X))
+	return nil, fmt.Errorf("No %d entries found that sum up to be %d", N, X)
 }

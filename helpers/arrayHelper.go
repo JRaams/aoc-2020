@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -65,4 +67,16 @@ func All(a []bool, toMatch bool) bool {
 		}
 	}
 	return true
+}
+
+// GetNEntriesThatMatchX takes an array of entries and returns an array of N items that sum to be X
+func GetNEntriesThatMatchX(entries []int, N int, X int) (matchingEntries []int, err error) {
+	obj := CombinationGenerator(entries, N)
+	for obj.HasNext() {
+		nextEntries := obj.Next()
+		if SumIntArrValues(nextEntries) == X {
+			return nextEntries, nil
+		}
+	}
+	return nil, errors.New(fmt.Sprintf("No %d entries found that sum up to be %d", N, X))
 }

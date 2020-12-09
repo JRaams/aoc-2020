@@ -13,25 +13,14 @@ func main() {
 	intEntries := helpers.TranslateStringArrToIntArr(stringInputValues)
 
 	// Part 1
-	matchingEntries1 := getNEntriesThatMatchX(intEntries, 2, 2020)
+	matchingEntries1, _ := helpers.GetNEntriesThatMatchX(intEntries, 2, 2020)
 	answer1 := helpers.MultIntArrValues(matchingEntries1)
 	fmt.Printf("Solution for part 1: %d using values: %v", answer1, matchingEntries1)
 	fmt.Println()
 
 	// Part 2
-	matchingEntries2 := getNEntriesThatMatchX(intEntries, 3, 2020)
+	matchingEntries2, _ := helpers.GetNEntriesThatMatchX(intEntries, 3, 2020)
 	answer2 := helpers.MultIntArrValues(matchingEntries2)
 	fmt.Printf("Solution for part 2: %d using values: %v", answer2, matchingEntries2)
 	fmt.Println()
-}
-
-func getNEntriesThatMatchX(entries []int, N int, X int) (matchingEntries []int) {
-	obj := helpers.CombinationGenerator(entries, N)
-	for obj.HasNext() {
-		nextEntries := obj.Next()
-		if helpers.SumIntArrValues(nextEntries) == X {
-			return nextEntries
-		}
-	}
-	panic(fmt.Errorf("No %d entries found that sum up to be %d", N, X))
 }

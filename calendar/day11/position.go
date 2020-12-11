@@ -1,5 +1,7 @@
 package main
 
+import "errors"
+
 type position struct {
 	y              int
 	x              int
@@ -44,7 +46,7 @@ func (p *position) checkRule1(g grid) bool {
 }
 
 // If a seat is occupied (#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
-func (p *position) checkRule2(g grid) bool {
+func (p *position) checkRule2(g grid, seatTolerance int) bool {
 	if !p.isOccupied {
 		return false
 	}
@@ -55,27 +57,40 @@ func (p *position) checkRule2(g grid) bool {
 			occupiedNeighbourCount++
 		}
 	}
-	return occupiedNeighbourCount >= 4
+	return occupiedNeighbourCount >= seatTolerance
 }
 
-func getNeighBourSeats(g grid, y int, x int) []position {
+func getNeighBourSeats(g grid, y int, x int, onlyCheckAdjacentSeats bool) []position {
 	var seats []position
 	for dy := -1; dy <= 1; dy++ {
 		for dx := -1; dx <= 1; dx++ {
 			if dy == 0 && dx == 0 {
 				continue
 			}
-
-			newY := y + dy
-			newX := x + dx
-			if newY < 0 || newX < 0 || newY >= len(g) || newX >= len(g[y]) {
-				continue
-			}
-
-			if position := g[newY][newX]; !position.isFloor {
-				seats = append(seats, position)
+			if position, err := getSeatInDir(g, y, x, dy, dx, onlyCheckAdjacentSeats); err == nil {
+				seats = append(seats, *position)
 			}
 		}
 	}
 	return seats
+}
+
+func getSeatInDir(g grid, y int, x int, dy int, dx int, quitAfterFirst bool) (*position, error) {
+	newY := y + dy
+	newX := x + dx
+
+	if newY < 0 || newX < 0 || newY >= len(g) || newX >= len(g[y]) {
+		return nil, errors.New("")
+	}
+
+	position := g[newY][newX]
+	if !position.isFloor {
+		return &position, nil
+	}
+
+	if quitAfterFirst {
+		return nil, errors.New("")
+	}
+
+	return getSeatInDir(g, newY, newX, dy, dx, quitAfterFirst)
 }

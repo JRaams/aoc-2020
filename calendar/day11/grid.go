@@ -14,7 +14,19 @@ func (g grid) print() {
 	fmt.Println()
 }
 
-func (g grid) applyRules() {
+func (g grid) simulate(seatTolerance int) int {
+	oldOccupiedSeats := -1
+	for {
+		g.applyRules(seatTolerance)
+		newOccupiedSeats := g.countOccupiedSeats()
+		if oldOccupiedSeats == newOccupiedSeats {
+			return newOccupiedSeats
+		}
+		oldOccupiedSeats = newOccupiedSeats
+	}
+}
+
+func (g grid) applyRules(seatTolerance int) {
 	for y := 0; y < len(g); y++ {
 		for x := 0; x < len(g[y]); x++ {
 			g[y][x].tempIsOccupied = g[y][x].isOccupied
@@ -27,7 +39,7 @@ func (g grid) applyRules() {
 				continue
 			}
 
-			if g[y][x].checkRule2(g) {
+			if g[y][x].checkRule2(g, seatTolerance) {
 				g[y][x].tempIsOccupied = false
 				continue
 			}
@@ -55,7 +67,7 @@ func (g grid) countOccupiedSeats() int {
 	return occupiedSeats
 }
 
-func loadGrid(inputValues []string) grid {
+func loadGrid(inputValues []string, onlyCheckAdjacentSeats bool) grid {
 	width := len(inputValues[0])
 	var grid grid
 
@@ -70,13 +82,13 @@ func loadGrid(inputValues []string) grid {
 		}
 	}
 
-	// Set adjacent seats beforehand
+	// Set adjacent seats
 	for y := 0; y < len(grid); y++ {
 		for x := 0; x < len(grid[y]); x++ {
 			if grid[y][x].isFloor {
 				continue
 			}
-			neighBourSeats := getNeighBourSeats(grid, y, x)
+			neighBourSeats := getNeighBourSeats(grid, y, x, onlyCheckAdjacentSeats)
 			grid[y][x].adjacentSeats = append(grid[y][x].adjacentSeats, neighBourSeats...)
 		}
 	}

@@ -11,22 +11,16 @@ func main() {
 	// Load input from file
 	inputPath, _ := filepath.Abs("input")
 	inputValues := helpers.GetInputValues(inputPath)
-	grid := loadGrid(inputValues)
 
 	// Part 1
-	occupiedSeats := solveA(grid)
+	grid := loadGrid(inputValues, true)
+	occupiedSeats := grid.simulate(4)
 	fmt.Printf("Solution part 1: %d seats are occupied after the chaos stabilizes", occupiedSeats)
 	fmt.Println()
-}
 
-func solveA(g grid) int {
-	oldOccupiedSeats := -1
-	for {
-		g.applyRules()
-		newOccupiedSeats := g.countOccupiedSeats()
-		if oldOccupiedSeats == newOccupiedSeats {
-			return newOccupiedSeats
-		}
-		oldOccupiedSeats = newOccupiedSeats
-	}
+	// Part 2
+	grid = loadGrid(inputValues, false)
+	occupiedSeats = grid.simulate(5)
+	fmt.Printf("Solution part 2: %d seats are occupied once equilibrium is reached", occupiedSeats)
+	fmt.Println()
 }

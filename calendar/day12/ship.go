@@ -1,6 +1,8 @@
 package main
 
-import "math"
+import (
+	"math"
+)
 
 type ship struct {
 	x   int // Amount of units horizonally, positive = east, negative = west
@@ -17,6 +19,14 @@ func (s *ship) followInstructions(instructions []instruction) {
 	}
 }
 
-func (s ship) getManhattanDist() int {
+func (s *ship) getManhattanDist() int {
 	return int(math.Abs(float64(s.x)) + math.Abs(float64(s.y)))
+}
+
+func (s *ship) followWaypoint(waypoint *waypoint, instructions []instruction) {
+	for _, instruction := range instructions {
+		shipDx, shipDy := waypoint.followInstruction(instruction)
+		s.x += shipDx
+		s.y += shipDy
+	}
 }

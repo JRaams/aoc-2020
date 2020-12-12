@@ -16,7 +16,7 @@ func main() {
 	// Part 1
 	s1 := ship{dir: 90} // face east
 	s1.followInstructions(instructions)
-	manhattanDist1 := s1.getManhattanDist()
+	manhattanDist1 := helpers.GetManhattanDistInt(s1.x, s1.y)
 	fmt.Printf("Solution part 1: the ships manhattan distance from the starting position is: %d", manhattanDist1)
 	fmt.Println()
 
@@ -24,7 +24,7 @@ func main() {
 	waypoint := waypoint{x: 10, y: 1}
 	s2 := ship{}
 	s2.followWaypoint(&waypoint, instructions)
-	manhattanDist2 := s2.getManhattanDist()
+	manhattanDist2 := helpers.GetManhattanDistInt(s2.x, s2.y)
 	fmt.Printf("Solution part 2: the ships manhattan distance from the starting position is: %d", manhattanDist2)
 	fmt.Println()
 }

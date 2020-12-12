@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"math"
+
+	"github.com/jraams/aoc-2020/helpers"
 )
 
 type waypoint struct {
@@ -34,20 +35,12 @@ func (w *waypoint) followInstruction(i instruction) (shipDx int, shipDy int) {
 		}
 	case "L":
 		{
-			radians := -float64(i.value) * (math.Pi / 180)
-			newX := float64(w.x)*math.Cos(radians) + float64(w.y)*math.Sin(radians) // Rotate x by -i.value degrees
-			newY := float64(w.y)*math.Cos(radians) - float64(w.x)*math.Sin(radians) // Rotate y by -i.value degrees
-			w.x = int(math.Round(newX))
-			w.y = int(math.Round(newY))
+			w.x, w.y = helpers.RotateCartesianIntCoordsByDegrees(w.x, w.y, -i.value)
 			return 0, 0
 		}
 	case "R":
 		{
-			radians := float64(i.value) * (math.Pi / 180)
-			newX := float64(w.x)*math.Cos(radians) + float64(w.y)*math.Sin(radians) // Rotate x by i.value degrees
-			newY := float64(w.y)*math.Cos(radians) - float64(w.x)*math.Sin(radians) // Rotate y by i.value degrees
-			w.x = int(math.Round(newX))
-			w.y = int(math.Round(newY))
+			w.x, w.y = helpers.RotateCartesianIntCoordsByDegrees(w.x, w.y, i.value)
 			return 0, 0
 		}
 	case "F":

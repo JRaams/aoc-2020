@@ -9,17 +9,17 @@ import (
 )
 
 type program struct {
-	memory           map[int]int
-	instruction_sets []instruction_set
+	memory          map[int]int
+	instructionSets []instructionSet
 }
 
 func (p *program) run(version int) {
-	for _, instruction_set := range p.instruction_sets {
-		for _, instruction := range instruction_set.instructions {
+	for _, instructionSet := range p.instructionSets {
+		for _, instruction := range instructionSet.instructions {
 			if version == 1 {
-				p.memory[instruction.address] = instruction.getMaskedValue(instruction_set.mask)
+				p.memory[instruction.address] = instruction.getMaskedValue(instructionSet.mask)
 			} else if version == 2 {
-				maskedFloatingAddress := getMaskedFloatingAddress(instruction_set.mask, instruction.address)
+				maskedFloatingAddress := getMaskedFloatingAddress(instructionSet.mask, instruction.address)
 				addressCombinations := getAddressCombinations("", maskedFloatingAddress, fmt.Sprintf("%036b", instruction.address))
 				for _, addresCombi := range addressCombinations {
 					intAddr, _ := strconv.ParseInt(addresCombi, 2, 64)
@@ -39,15 +39,15 @@ func (p *program) getSumOfAllValues() int {
 }
 
 func loadProgram(inputValues []string) program {
-	isets := []instruction_set{}
+	isets := []instructionSet{}
 
-	var iset instruction_set
+	var iset instructionSet
 	for _, line := range inputValues {
 		lineParts := strings.Split(line, " = ")
 
 		if funk.Contains(line, "mask") {
 			isets = append(isets, iset)
-			iset = instruction_set{
+			iset = instructionSet{
 				mask: lineParts[1],
 			}
 		} else {
@@ -64,8 +64,8 @@ func loadProgram(inputValues []string) program {
 	isets = isets[1:]
 
 	program := program{
-		memory:           make(map[int]int),
-		instruction_sets: isets,
+		memory:          make(map[int]int),
+		instructionSets: isets,
 	}
 	return program
 }

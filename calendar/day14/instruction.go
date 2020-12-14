@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type instruction_set struct {
+type instructionSet struct {
 	mask         string
 	instructions []instruction
 }

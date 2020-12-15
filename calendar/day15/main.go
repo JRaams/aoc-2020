@@ -13,19 +13,23 @@ import (
 func main() {
 	// Load input from file
 	inputPath, _ := filepath.Abs("input")
-	inputValues := helpers.GetInputValues(inputPath)
-	intValues := funk.Map(strings.Split(inputValues[0], ","), func(s string) int {
-		intVal, _ := strconv.Atoi(s)
-		return intVal
-	}).([]int)
+	lines := helpers.GetInputValues(inputPath)
+	input := loadInput(lines[0])
 
 	// Part a
-	a := findLastSpokenNumber(intValues, 2020)
+	a := findLastSpokenNumber(input, 2020)
 	fmt.Printf("Solution day 15 part a: %d\n", a)
 
 	// Part b
-	b := findLastSpokenNumber(intValues, 30000000)
+	b := findLastSpokenNumber(input, 30000000)
 	fmt.Printf("Solution day 15 part b: %d\n", b)
+}
+
+func loadInput(strInput string) []int {
+	return funk.Map(strings.Split(strInput, ","), func(s string) int {
+		intVal, _ := strconv.Atoi(s)
+		return intVal
+	}).([]int)
 }
 
 func findLastSpokenNumber(intValues []int, N int) int {

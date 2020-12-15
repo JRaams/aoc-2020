@@ -20,11 +20,15 @@ func main() {
 	}).([]int)
 
 	// Part a
-	a := solveA(intValues)
+	a := findLastSpokenNumber(intValues, 2020)
 	fmt.Printf("Solution day 15 part a: %d\n", a)
+
+	// Part b
+	b := findLastSpokenNumber(intValues, 30000000)
+	fmt.Printf("Solution day 15 part b: %d\n", b)
 }
 
-func solveA(intValues []int) int {
+func findLastSpokenNumber(intValues []int, N int) int {
 	previousNumbers := map[int][]int{}
 	turn, lastNumber := 1, -1
 
@@ -35,8 +39,8 @@ func solveA(intValues []int) int {
 		turn++
 	}
 
-	// Loop until turn 2020
-	for turn <= 2020 {
+	// Loop until turn N
+	for turn <= N {
 		speakIndexes := previousNumbers[lastNumber]
 		if len(speakIndexes) == 1 {
 			lastNumber = 0

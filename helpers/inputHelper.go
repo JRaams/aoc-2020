@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
 	"strings"
 )
 
@@ -21,4 +22,10 @@ func GetInputValues(absFilePath string) (values []string) {
 	}
 
 	return strValues
+}
+
+// MustAtoi converts a string that is SURE to be an int to an int without error
+func MustAtoi(input string) int {
+	intVal, _ := strconv.Atoi(input)
+	return intVal
 }

@@ -14,6 +14,18 @@ type rule struct {
 	range2end   int
 }
 
+func (r *rule) isValid(index int, tickets []ticket) bool {
+	for _, ticket := range tickets {
+		val := ticket.values[index]
+		fallsInRange1 := r.range1start <= val && val <= r.range1end
+		fallsInRange2 := r.range2start <= val && val <= r.range2end
+		if !fallsInRange1 && !fallsInRange2 {
+			return false
+		}
+	}
+	return true
+}
+
 type ticket struct {
 	values []int
 }

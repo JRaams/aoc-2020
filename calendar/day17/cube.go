@@ -1,16 +1,19 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
 var cubes []*cube
 
 type cube struct {
-	id        int
-	x         int
-	y         int
-	z         int
-	active    bool
-	nextState bool
+	id         int
+	x          int
+	y          int
+	z          int
+	active     bool
+	nextState  bool
+	neighbours []*cube
 }
 
 func loadCubes(lines []string, cycles int) {
@@ -21,13 +24,25 @@ func loadCubes(lines []string, cycles int) {
 		for y := -cycles; y < len(lines)+cycles; y++ {
 			for z := -cycles; z < cycles+1; z++ {
 				cubes = append(cubes, &cube{
-					id:     id,
-					x:      x,
-					y:      y,
-					z:      z,
-					active: false,
+					id:         id,
+					x:          x,
+					y:          y,
+					z:          z,
+					active:     false,
+					neighbours: []*cube{},
 				})
 				id++
+			}
+		}
+	}
+
+	// Set all neighbours
+	for x := -cycles; x < len(lines)+cycles; x++ {
+		for y := -cycles; y < len(lines)+cycles; y++ {
+			for z := -cycles; z < cycles+1; z++ {
+				cube, _ := getCubeAt(x, y, z)
+				neighBours := cube.getNeighbours()
+				cube.neighbours = neighBours
 			}
 		}
 	}
@@ -53,8 +68,8 @@ func getCubeAt(x int, y int, z int) (*cube, error) {
 	return nil, errors.New("No cube found")
 }
 
-func (c *cube) getNeighbours() []cube {
-	var neighBours []cube
+func (c *cube) getNeighbours() []*cube {
+	var neighBours []*cube
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
 			for dz := -1; dz <= 1; dz++ {
@@ -62,16 +77,16 @@ func (c *cube) getNeighbours() []cube {
 				if err != nil || c.id == otherCube.id {
 					continue
 				}
-				neighBours = append(neighBours, *otherCube)
+				neighBours = append(neighBours, otherCube)
 			}
 		}
 	}
 	return neighBours
 }
 
-func (c *cube) getNeighbourCount() int {
+func (c *cube) getActiveNeighbourCount() int {
 	active := 0
-	for _, neighBour := range c.getNeighbours() {
+	for _, neighBour := range c.neighbours {
 		if neighBour.active {
 			active++
 		}
@@ -80,7 +95,7 @@ func (c *cube) getNeighbourCount() int {
 }
 
 func (c *cube) applyRules() {
-	activeCount := c.getNeighbourCount()
+	activeCount := c.getActiveNeighbourCount()
 	c.nextState = false
 
 	if c.active {

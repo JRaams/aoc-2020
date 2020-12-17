@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 var cubes []*cube
@@ -11,27 +12,45 @@ type cube struct {
 	x          int
 	y          int
 	z          int
+	w          int
 	active     bool
 	nextState  bool
 	neighbours []*cube
 }
 
-func loadCubes(lines []string, cycles int) {
+func loadCubes(lines []string, cycles int, wDim bool) {
 	id := 0
+	cubes = []*cube{}
 
-	// Create a 3d grid of inactive cubes len(lines) + cycles wide & high, cycles deep since z starts off as 0
+	// Create a 3d/4d grid of inactive cubes len(lines) + cycles wide & high, cycles deep since z starts off as 0
 	for x := -cycles; x < len(lines)+cycles; x++ {
 		for y := -cycles; y < len(lines)+cycles; y++ {
 			for z := -cycles; z < cycles+1; z++ {
-				cubes = append(cubes, &cube{
-					id:         id,
-					x:          x,
-					y:          y,
-					z:          z,
-					active:     false,
-					neighbours: []*cube{},
-				})
-				id++
+				if wDim {
+					for w := -cycles; w < cycles+1; w++ {
+						cubes = append(cubes, &cube{
+							id:         id,
+							x:          x,
+							y:          y,
+							z:          z,
+							w:          w,
+							active:     false,
+							neighbours: []*cube{},
+						})
+						id++
+					}
+				} else {
+					cubes = append(cubes, &cube{
+						id:         id,
+						x:          x,
+						y:          y,
+						z:          z,
+						w:          0,
+						active:     false,
+						neighbours: []*cube{},
+					})
+					id++
+				}
 			}
 		}
 	}
@@ -40,44 +59,63 @@ func loadCubes(lines []string, cycles int) {
 	for x := -cycles; x < len(lines)+cycles; x++ {
 		for y := -cycles; y < len(lines)+cycles; y++ {
 			for z := -cycles; z < cycles+1; z++ {
-				cube, _ := getCubeAt(x, y, z)
-				neighBours := cube.getNeighbours()
-				cube.neighbours = neighBours
+				if wDim {
+					for w := -cycles; w < cycles+1; w++ {
+						cube, _ := getCubeAt(x, y, z, w)
+						neighBours := cube.getNeighbours(true)
+						cube.neighbours = neighBours
+					}
+				} else {
+					cube, _ := getCubeAt(x, y, z, 0)
+					neighBours := cube.getNeighbours(false)
+					cube.neighbours = neighBours
+				}
 			}
 		}
 	}
 
+	fmt.Println("Set initial active cubes")
 	// Set initial active cubes
 	for y := 0; y < len(lines); y++ {
 		line := lines[y]
 		for x := 0; x < len(line); x++ {
 			r := line[x]
 			active := r == '#'
-			cube, _ := getCubeAt(x, y, 0)
+			cube, _ := getCubeAt(x, y, 0, 0)
 			cube.active = active
 		}
 	}
 }
 
-func getCubeAt(x int, y int, z int) (*cube, error) {
+func getCubeAt(x int, y int, z int, w int) (*cube, error) {
 	for _, cube := range cubes {
-		if cube.x == x && cube.y == y && cube.z == z {
+		if cube.x == x && cube.y == y && cube.z == z && cube.w == w {
 			return cube, nil
 		}
 	}
 	return nil, errors.New("No cube found")
 }
 
-func (c *cube) getNeighbours() []*cube {
+func (c *cube) getNeighbours(wDim bool) []*cube {
 	var neighBours []*cube
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
 			for dz := -1; dz <= 1; dz++ {
-				otherCube, err := getCubeAt(c.x+dx, c.y+dy, c.z+dz)
-				if err != nil || c.id == otherCube.id {
-					continue
+				if wDim {
+					for dw := -1; dw <= 1; dw++ {
+						otherCube, err := getCubeAt(c.x+dx, c.y+dy, c.z+dz, c.w+dw)
+						if err != nil || c.id == otherCube.id {
+							continue
+						}
+						neighBours = append(neighBours, otherCube)
+					}
+				} else {
+					otherCube, err := getCubeAt(c.x+dx, c.y+dy, c.z+dz, 0)
+					if err != nil || c.id == otherCube.id {
+						continue
+					}
+					neighBours = append(neighBours, otherCube)
 				}
-				neighBours = append(neighBours, otherCube)
 			}
 		}
 	}

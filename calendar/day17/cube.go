@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+const cycleCount = 6
+
 var cubes map[string]*cube
 
 type pos struct {
@@ -99,8 +101,8 @@ func loadCubes(lines []string, cycles int, wDim bool) {
 }
 
 func boot(lines []string, wDim bool) int {
-	loadCubes(lines, CYCLE_COUNT, wDim)
-	for cycle := 0; cycle < CYCLE_COUNT; cycle++ {
+	loadCubes(lines, cycleCount, wDim)
+	for cycle := 0; cycle < cycleCount; cycle++ {
 		for _, cube := range cubes {
 			cube.applyRules()
 		}

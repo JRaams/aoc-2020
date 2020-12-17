@@ -7,8 +7,6 @@ import (
 	"github.com/jraams/aoc-2020/helpers"
 )
 
-const CYCLE_COUNT = 6
-
 func main() {
 	// Load input from file
 	inputPath, _ := filepath.Abs("input")

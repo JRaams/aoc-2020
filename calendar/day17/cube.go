@@ -5,14 +5,18 @@ import (
 	"fmt"
 )
 
-var cubes []*cube
+var cubes map[string]*cube
+
+type pos struct {
+	x int
+	y int
+	w int
+	z int
+}
 
 type cube struct {
 	id         int
-	x          int
-	y          int
-	z          int
-	w          int
+	pos        pos
 	active     bool
 	nextState  bool
 	neighbours []*cube
@@ -20,7 +24,7 @@ type cube struct {
 
 func loadCubes(lines []string, cycles int, wDim bool) {
 	id := 0
-	cubes = []*cube{}
+	cubes = make(map[string]*cube)
 
 	// Create a 3d/4d grid of inactive cubes len(lines) + cycles wide & high, cycles deep since z starts off as 0
 	for x := -cycles; x < len(lines)+cycles; x++ {
@@ -28,27 +32,35 @@ func loadCubes(lines []string, cycles int, wDim bool) {
 			for z := -cycles; z < cycles+1; z++ {
 				if wDim {
 					for w := -cycles; w < cycles+1; w++ {
-						cubes = append(cubes, &cube{
-							id:         id,
-							x:          x,
-							y:          y,
-							z:          z,
-							w:          w,
+						c := &cube{
+							id: id,
+							pos: pos{
+								x: x,
+								y: y,
+								z: z,
+								w: w,
+							},
 							active:     false,
 							neighbours: []*cube{},
-						})
+						}
+						k := getKey(x, y, z, w)
+						cubes[k] = c
 						id++
 					}
 				} else {
-					cubes = append(cubes, &cube{
-						id:         id,
-						x:          x,
-						y:          y,
-						z:          z,
-						w:          0,
+					c := &cube{
+						id: id,
+						pos: pos{
+							x: x,
+							y: y,
+							z: z,
+							w: 0,
+						},
 						active:     false,
 						neighbours: []*cube{},
-					})
+					}
+					k := getKey(x, y, z, 0)
+					cubes[k] = c
 					id++
 				}
 			}
@@ -74,7 +86,6 @@ func loadCubes(lines []string, cycles int, wDim bool) {
 		}
 	}
 
-	fmt.Println("Set initial active cubes")
 	// Set initial active cubes
 	for y := 0; y < len(lines); y++ {
 		line := lines[y]
@@ -87,11 +98,34 @@ func loadCubes(lines []string, cycles int, wDim bool) {
 	}
 }
 
-func getCubeAt(x int, y int, z int, w int) (*cube, error) {
-	for _, cube := range cubes {
-		if cube.x == x && cube.y == y && cube.z == z && cube.w == w {
-			return cube, nil
+func boot(lines []string, wDim bool) int {
+	loadCubes(lines, CYCLE_COUNT, wDim)
+	for cycle := 0; cycle < CYCLE_COUNT; cycle++ {
+		for _, cube := range cubes {
+			cube.applyRules()
 		}
+		for _, cube := range cubes {
+			cube.active = cube.nextState
+		}
+	}
+
+	activeCubes := 0
+	for _, c := range cubes {
+		if c.active {
+			activeCubes++
+		}
+	}
+	return activeCubes
+}
+
+func getKey(x int, y int, z int, w int) string {
+	return fmt.Sprintf("%d-%d-%d-%d", x, y, z, w)
+}
+
+func getCubeAt(x int, y int, z int, w int) (*cube, error) {
+	k := getKey(x, y, z, w)
+	if cube, ok := cubes[k]; ok {
+		return cube, nil
 	}
 	return nil, errors.New("No cube found")
 }
@@ -103,14 +137,14 @@ func (c *cube) getNeighbours(wDim bool) []*cube {
 			for dz := -1; dz <= 1; dz++ {
 				if wDim {
 					for dw := -1; dw <= 1; dw++ {
-						otherCube, err := getCubeAt(c.x+dx, c.y+dy, c.z+dz, c.w+dw)
+						otherCube, err := getCubeAt(c.pos.x+dx, c.pos.y+dy, c.pos.z+dz, c.pos.w+dw)
 						if err != nil || c.id == otherCube.id {
 							continue
 						}
 						neighBours = append(neighBours, otherCube)
 					}
 				} else {
-					otherCube, err := getCubeAt(c.x+dx, c.y+dy, c.z+dz, 0)
+					otherCube, err := getCubeAt(c.pos.x+dx, c.pos.y+dy, c.pos.z+dz, 0)
 					if err != nil || c.id == otherCube.id {
 						continue
 					}

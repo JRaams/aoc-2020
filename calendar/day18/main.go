@@ -23,10 +23,10 @@ func main() {
 	fmt.Printf("Solution day 18 part b: %d\n", b)
 }
 
-func evaluateExpressions(lines []string, isAdvancedMath bool) int {
+func evaluateExpressions(lines []string, useAdvancedMath bool) int {
 	sum := 0
 	for _, line := range lines {
-		sum += evaluate(line, isAdvancedMath)
+		sum += evaluate(line, useAdvancedMath)
 	}
 	return sum
 }
@@ -35,31 +35,26 @@ func evaluateExpressions(lines []string, isAdvancedMath bool) int {
 // Taken from Arknave: https://github.com/arknave/advent-of-code-2020/blob/main/day18/day18.py
 // Translated from python to Go
 //
-func evaluate(eqn string, isAdvancedMath bool) int {
-	eqn = strings.ReplaceAll(eqn, "(", "( ")
-	eqn = strings.ReplaceAll(eqn, ")", " )")
-
-	tokens := funk.ReverseStrings(strings.Split(eqn, " "))
+func evaluate(line string, useAdvancedMath bool) int {
+	rep := strings.NewReplacer("(", "( ", ")", " )")
+	tokens := funk.ReverseStrings(strings.Split(rep.Replace(line), " "))
 	stk := []string{}
 	ops := []string{}
 
-	for _, c := range tokens {
-		token := string(c)
+	for _, token := range tokens {
 		if token == "(" {
 			if len(ops) >= 1 {
 				lastOp := ops[len(ops)-1]
 				for lastOp != ")" {
-					stk = append(stk, ops[len(ops)-1])
-					ops = ops[:len(ops)-1]
+					stk = append(stk, helpers.PopStr(&ops))
 					lastOp = ops[len(ops)-1]
 				}
 				ops = ops[:len(ops)-1]
 			}
 		} else if token == "*" {
-			if isAdvancedMath {
+			if useAdvancedMath {
 				for len(ops) >= 1 && ops[len(ops)-1] == "+" {
-					stk = append(stk, ops[len(ops)-1])
-					ops = ops[:len(ops)-1]
+					stk = append(stk, helpers.PopStr(&ops))
 				}
 			}
 			ops = append(ops, token)
@@ -71,21 +66,18 @@ func evaluate(eqn string, isAdvancedMath bool) int {
 	}
 
 	for len(ops) > 0 {
-		stk = append(stk, ops[len(ops)-1])
-		ops = ops[:len(ops)-1]
+		stk = append(stk, helpers.PopStr(&ops))
 	}
 
 	curr := []int{}
 	for _, val := range stk {
 		if val == "+" {
 			x := curr[len(curr)-1] + curr[len(curr)-2]
-			curr = curr[:len(curr)-1]
-			curr = curr[:len(curr)-1]
+			curr = curr[:len(curr)-2]
 			curr = append(curr, x)
 		} else if val == "*" {
 			x := curr[len(curr)-1] * curr[len(curr)-2]
-			curr = curr[:len(curr)-1]
-			curr = curr[:len(curr)-1]
+			curr = curr[:len(curr)-2]
 			curr = append(curr, x)
 		} else {
 			curr = append(curr, helpers.MustAtoi(val))

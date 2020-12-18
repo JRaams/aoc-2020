@@ -15,14 +15,18 @@ func main() {
 	lines := helpers.GetInputValues(inputPath)
 
 	// Part 1
-	a := evaluateExpressions(lines)
+	a := evaluateExpressions(lines, false)
 	fmt.Printf("Solution day 18 part a: %d\n", a)
+
+	// Part 2
+	b := evaluateExpressions(lines, true)
+	fmt.Printf("Solution day 18 part b: %d\n", b)
 }
 
-func evaluateExpressions(lines []string) int {
+func evaluateExpressions(lines []string, isAdvancedMath bool) int {
 	sum := 0
 	for _, line := range lines {
-		sum += parse(line)
+		sum += evaluate(line, isAdvancedMath)
 	}
 	return sum
 }
@@ -31,13 +35,11 @@ func evaluateExpressions(lines []string) int {
 // Taken from Arknave: https://github.com/arknave/advent-of-code-2020/blob/main/day18/day18.py
 // Translated from python to Go
 //
-func parse(eqn string) int {
-	// eqn: 1 + 2 * 3 + 4 * 5 + 6
+func evaluate(eqn string, isAdvancedMath bool) int {
 	eqn = strings.ReplaceAll(eqn, "(", "( ")
 	eqn = strings.ReplaceAll(eqn, ")", " )")
 
 	tokens := funk.ReverseStrings(strings.Split(eqn, " "))
-	// tokens: [1 + 2 * 3 + 4 * 5 + 6]
 	stk := []string{}
 	ops := []string{}
 
@@ -53,21 +55,25 @@ func parse(eqn string) int {
 				}
 				ops = ops[:len(ops)-1]
 			}
-		} else if token == "*" || token == ")" || token == "+" {
+		} else if token == "*" {
+			if isAdvancedMath {
+				for len(ops) >= 1 && ops[len(ops)-1] == "+" {
+					stk = append(stk, ops[len(ops)-1])
+					ops = ops[:len(ops)-1]
+				}
+			}
+			ops = append(ops, token)
+		} else if token == ")" || token == "+" {
 			ops = append(ops, token)
 		} else {
 			stk = append(stk, token)
 		}
 	}
-	// stk: [6 5 4 3 2 1]
-	// ops: [+ * + * +]
 
 	for len(ops) > 0 {
 		stk = append(stk, ops[len(ops)-1])
 		ops = ops[:len(ops)-1]
 	}
-	// stk: [6 5 4 3 2 1 + * + * +]
-	// ops: []
 
 	curr := []int{}
 	for _, val := range stk {

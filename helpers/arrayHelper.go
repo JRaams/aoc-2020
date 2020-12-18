@@ -80,6 +80,7 @@ func GetNEntriesThatMatchX(entries []int, N int, X int) (matchingEntries []int, 
 	return nil, fmt.Errorf("No %d entries found that sum up to be %d", N, X)
 }
 
+// PopStr slices off the last element in a string array, and returns it
 func PopStr(entries *[]string) string {
 	lastEntry := (*entries)[len(*entries)-1]
 	*entries = (*entries)[:len(*entries)-1]

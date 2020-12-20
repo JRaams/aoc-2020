@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -158,6 +160,8 @@ func fixTiles(allTiles []tile) [][]*tile {
 		tilesCopy := make([]tile, len(allTiles))
 		copy(tilesCopy, allTiles)
 		found, tiles := tryTilesetCombinations(size, tilesCopy, tilesCopy[i])
+		printTileIds(tiles)
+		saveFullImageToFile(tiles)
 		if !found {
 			continue
 		}
@@ -167,7 +171,7 @@ func fixTiles(allTiles []tile) [][]*tile {
 	panic("Couldn't find a valid tileset")
 }
 
-func printImageSet(a [][]*tile) {
+func printTileIds(a [][]*tile) {
 	for _, row := range a {
 		s := ""
 		for _, tile := range row {
@@ -179,6 +183,26 @@ func printImageSet(a [][]*tile) {
 			s += "\t"
 		}
 		fmt.Println(s)
+	}
+}
+
+func saveFullImageToFile(tiles [][]*tile) {
+	file, err := os.Create("./image")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	for _, tileRow := range tiles {
+		for row := 1; row < 9; row++ {
+			line := ""
+			for _, t := range tileRow {
+				for col := 1; col < 9; col++ {
+					line += string(t.image[row][col])
+				}
+			}
+			file.WriteString(line + "\n")
+		}
 	}
 }
 
@@ -246,10 +270,6 @@ func tryTileset(size int, allTiles []tile, t tile) (bool, [][]*tile) {
 				return false, tiles
 			}
 
-			if t.id == 1951 && t2.id == 1171 {
-				fmt.Println()
-			}
-
 			currentTile = *t2
 			tiles[row][col] = t2
 			remainingTiles = funk.Filter(remainingTiles, func(x tile) bool {
@@ -262,7 +282,7 @@ func tryTileset(size int, allTiles []tile, t tile) (bool, [][]*tile) {
 		}
 
 		// Find matching tile on bottom of currentTile
-		found, t2 := findMatchingTile(remainingTiles, tiles[row][0], Top)
+		found, t2 := findMatchingTile(remainingTiles, tiles[row][0], Bottom)
 		if !found {
 			return false, tiles
 		}
@@ -280,9 +300,6 @@ func findMatchingTile(remainingTiles []tile, t *tile, dir int) (bool, *tile) {
 	for _, otherTile := range remainingTiles {
 		if t.id == otherTile.id {
 			continue
-		}
-		if otherTile.id == 2729 {
-			fmt.Println()
 		}
 
 		if t.bordersMatch(&otherTile, dir) {

@@ -58,6 +58,23 @@ func Int64ArrDifference(a []int64, b []int64) []int64 {
 	return diff
 }
 
+// StringArrDifference takes two string arrays 'a' and 'b', and returns the difference between them
+func StringArrDifference(a []string, b []string) []string {
+	m := make(map[string]bool)
+	var diff []string
+
+	for _, item := range b {
+		m[item] = true
+	}
+
+	for _, item := range a {
+		if _, ok := m[item]; !ok {
+			diff = append(diff, item)
+		}
+	}
+	return diff
+}
+
 // All takes an array of booleans 'a' and returns whether all elements match 'toMatch'
 func All(a []bool, toMatch bool) bool {
 	for _, item := range a {

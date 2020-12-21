@@ -29,6 +29,7 @@ type tile struct {
 	image [][]rune
 }
 
+// Direction constants
 const (
 	Top    int = 1
 	Right  int = 2

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/jraams/aoc-2020/helpers"
@@ -13,11 +14,15 @@ func main() {
 	inputPath, _ := filepath.Abs("input")
 	lines := helpers.GetInputValues(inputPath)
 	foods := loadFoods(lines)
-	dangerousIngs := getDangerousIngs(foods)
+	allIngMap := getAllIngMap(foods)
 
-	// Part 1
-	a := solveA(foods, dangerousIngs)
+	// Part a
+	a := solveA(foods, allIngMap)
 	fmt.Printf("Solution day 21 part a: %d\n", a)
+
+	// Part b
+	b := solveB(allIngMap)
+	fmt.Printf("Solution day 21 part b: %s\n", b)
 }
 
 type food struct {
@@ -57,7 +62,7 @@ func loadFoods(lines []string) []food {
 	return foods
 }
 
-func getDangerousIngs(allFoods []food) []string {
+func getAllIngMap(allFoods []food) map[string][]string {
 	allIngMap := map[string][]string{}
 
 	for _, food := range allFoods {
@@ -78,22 +83,44 @@ func getDangerousIngs(allFoods []food) []string {
 
 	dangerousIngs := []string{}
 	for len(dangerousIngs) < len(allIngMap) {
-		for _, suspects := range allIngMap {
-			diffSuspectsAndKnown := helpers.StringArrDifference(suspects, dangerousIngs)
+		for all, ings := range allIngMap {
+			diffSuspectsAndKnown := helpers.StringArrDifference(ings, dangerousIngs)
 			if len(diffSuspectsAndKnown) == 1 {
-				suspects = diffSuspectsAndKnown
-				dangerousIngs = append(dangerousIngs, suspects...)
+				allIngMap[all] = diffSuspectsAndKnown
+				dangerousIngs = append(dangerousIngs, ings...)
 			}
 		}
 	}
-	return dangerousIngs
+
+	return allIngMap
 }
 
-func solveA(allFoods []food, dangerousIngs []string) int {
+func solveA(allFoods []food, allIngMap map[string][]string) int {
+	var dangerousIngs []string
+	for _, ings := range allIngMap {
+		dangerousIngs = append(dangerousIngs, ings...)
+	}
+
 	a := 0
 	for _, food := range allFoods {
 		d := helpers.StringArrDifference(food.ingredients, dangerousIngs)
 		a += len(d)
 	}
 	return a
+}
+
+func solveB(allIngMap map[string][]string) string {
+	keys := make([]string, 0)
+	for k := range allIngMap {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	b := ""
+	for _, k := range keys {
+		b += allIngMap[k][0] + ","
+	}
+	b = b[:len(b)-1]
+
+	return b
 }

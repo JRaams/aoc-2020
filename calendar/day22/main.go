@@ -11,6 +11,8 @@ import (
 	"github.com/thoas/go-funk"
 )
 
+const debug = true
+
 func main() {
 	inputPath, _ := filepath.Abs("input")
 	lines := helpers.GetInputValues(inputPath)
@@ -49,13 +51,15 @@ func loadDecks(lines []string) (*list.List, *list.List) {
 }
 
 func solveA(d1 *list.List, d2 *list.List) int {
-	_, winningDeck := playSpaceCards(0, false, d1, d2)
+	gameRoundDeckMap := map[int]*map[int][]string{}
+	_, winningDeck := playSpaceCards(1, false, gameRoundDeckMap, d1, d2)
 	score := calculateScore(winningDeck)
 	return score
 }
 
 func solveB(d1 *list.List, d2 *list.List) int {
-	_, winningDeck := playSpaceCards(0, true, d1, d2)
+	gameRoundDeckMap := map[int]*map[int][]string{}
+	_, winningDeck := playSpaceCards(1, true, gameRoundDeckMap, d1, d2)
 	score := calculateScore(winningDeck)
 	return score
 }
@@ -81,11 +85,13 @@ func getDeckHash(deck *list.List) string {
 	return hash
 }
 
-func copyDeck(deck *list.List) *list.List {
+func copyDeckUpTo(deck *list.List, maxItems int) *list.List {
 	newDeck := new(list.List)
-	for item := deck.Front(); item != nil; {
+	count := 0
+	for item := deck.Front(); item != nil && count < maxItems; {
 		newDeck.PushBack(item.Value)
 		item = item.Next()
+		count++
 	}
 	return newDeck
 }
@@ -100,11 +106,16 @@ func printDeck(player int, deck *list.List) {
 	fmt.Println()
 }
 
-func playSpaceCards(gameNr int, recursive bool, d1 *list.List, d2 *list.List) (int, *list.List) {
-	gameNr++
-	fmt.Printf("\n=== Game %d ===\n", gameNr)
+var gameCounter = 1
 
-	rounds := map[int][]string{}
+func playSpaceCards(gameNr int, recursive bool, rounds map[int]*map[int][]string, d1 *list.List, d2 *list.List) (int, *list.List) {
+	if debug {
+		fmt.Printf("\n=== Game %d ===\n", gameNr)
+	}
+
+	if !funk.Contains(rounds, gameNr) {
+		rounds[gameNr] = &map[int][]string{}
+	}
 
 	roundNr := 1
 	// Play game
@@ -117,19 +128,26 @@ func playSpaceCards(gameNr int, recursive bool, d1 *list.List, d2 *list.List) (i
 			d1h := getDeckHash(d1)
 			d2h := getDeckHash(d2)
 
-			if funk.Contains(rounds[1], d1h) {
-				fmt.Printf("player 1 deck %s has already been used in this game\n", d1h)
+			roundMap := *rounds[gameNr]
+			if funk.Contains(roundMap[1], d1h) {
+				if debug {
+					fmt.Printf("player 1 deck %s has already been used in this game\n", d1h)
+				}
 				return 1, d1
 			}
-			if funk.Contains(rounds[2], d2h) {
-				fmt.Printf("player 2 deck %s has already been used in this game\n", d2h)
+			if funk.Contains(roundMap[2], d2h) {
+				if debug {
+					fmt.Printf("player 2 deck %s has already been used in this game\n", d2h)
+				}
 				return 1, d1
 			}
 		}
 
-		fmt.Printf("-- Round %d (Game %d)\n", roundNr, gameNr)
-		printDeck(1, d1)
-		printDeck(2, d2)
+		if debug {
+			fmt.Printf("-- Round %d (Game %d)\n", roundNr, gameNr)
+			printDeck(1, d1)
+			printDeck(2, d2)
+		}
 
 		p1e := d1.Front()
 		p2e := d2.Front()
@@ -137,24 +155,32 @@ func playSpaceCards(gameNr int, recursive bool, d1 *list.List, d2 *list.List) (i
 		p1i := p1e.Value.(int)
 		p2i := p2e.Value.(int)
 
-		rounds[1] = append(rounds[1], getDeckHash(d1))
-		rounds[2] = append(rounds[2], getDeckHash(d2))
+		roundMap := *rounds[gameNr]
+		roundMap[1] = append(roundMap[1], getDeckHash(d1))
+		roundMap[2] = append(roundMap[2], getDeckHash(d2))
 
 		d1.Remove(p1e)
 		d2.Remove(p2e)
 
-		fmt.Printf("Player 1 plays: %d\n", p1i)
-		fmt.Printf("Player 2 plays: %d\n", p2i)
+		if debug {
+			fmt.Printf("Player 1 plays: %d\n", p1i)
+			fmt.Printf("Player 2 plays: %d\n", p2i)
+		}
 
 		p1won := p1i > p2i
 
 		if recursive {
 			if p1i <= d1.Len() && p2i <= d2.Len() {
-				fmt.Println("Playing a sub game to determine the winner...")
-				d1copy := copyDeck(d1)
-				d2copy := copyDeck(d2)
-				winner, _ := playSpaceCards(gameNr, true, d1copy, d2copy)
-				fmt.Printf("The winner of game %d is player %d\n", gameNr, winner)
+				if debug {
+					fmt.Println("Playing a sub game to determine the winner...")
+				}
+				d1copy := copyDeckUpTo(d1, p1i)
+				d2copy := copyDeckUpTo(d2, p2i)
+				gameCounter++
+				winner, _ := playSpaceCards(gameCounter, true, rounds, d1copy, d2copy)
+				if debug {
+					fmt.Printf("The winner of game %d is player %d\n", gameNr, winner)
+				}
 				p1won = winner == 1
 			}
 		}
@@ -162,16 +188,22 @@ func playSpaceCards(gameNr int, recursive bool, d1 *list.List, d2 *list.List) (i
 		if p1won {
 			d1.PushBack(p1i)
 			d1.PushBack(p2i)
-			fmt.Printf("Player 1 wins round %d of game %d\n", roundNr, gameNr)
+			if debug {
+				fmt.Printf("Player 1 wins round %d of game %d\n", roundNr, gameNr)
+			}
 		} else {
 			d2.PushBack(p2i)
 			d2.PushBack(p1i)
-			fmt.Printf("Player 2 wins round %d of game %d\n", roundNr, gameNr)
+			if debug {
+				fmt.Printf("Player 2 wins round %d of game %d\n", roundNr, gameNr)
+			}
 		}
 
 		roundNr++
-		fmt.Println()
-		fmt.Println()
+		if debug {
+			fmt.Println()
+			fmt.Println()
+		}
 	}
 
 	// Decide winner

@@ -138,9 +138,9 @@ func playSpaceCards(gameNr int, recursive bool, rounds map[int]*map[int][]string
 	}
 
 	// Decide winner
-	if d1.Len() == 0 {
-		return 2, d2
-	} else {
+	if d1.Len() > 0 {
 		return 1, d1
 	}
+
+	return 2, d2
 }

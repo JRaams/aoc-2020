@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/jraams/aoc-2020/helpers"
 	"github.com/thoas/go-funk"
@@ -12,103 +13,111 @@ import (
 func main() {
 	inputPath, _ := filepath.Abs("input")
 	lines := helpers.GetInputValues(inputPath)
-	cups := load(lines[0])
 
-	a := solveA(cups)
+	// Part a
+	vca, firstValue := load(lines[0], false)
+	a := solveA(vca, firstValue)
 	fmt.Printf("Solution day 23 part a: %s\n", a)
+
+	// // Part b
+	// cupsB := load(lines[0], true)
+	// b := solveB(cupsB)
+	// fmt.Printf("Solution day 23 part b: %d\n", b)
 }
 
-func load(labels string) cups {
-	c := cups{
-		values: []int{},
-	}
+type valueCupMap map[int]*cup
 
+type cup struct {
+	value int
+	next  *cup
+}
+
+func load(labels string, extendCups bool) (valueCupMap, *cup) {
+	var intValues []int
 	for _, b := range []byte(labels) {
-		c.values = append(c.values, helpers.MustAtoi(string(b)))
+		intValues = append(intValues, helpers.MustAtoi(string(b)))
 	}
-	return c
-}
-
-type cups struct {
-	values []int
-}
-
-func (c *cups) index(value int) int {
-	for i := 0; i < len(c.values); i++ {
-		if c.values[i] == value {
-			return i
+	if extendCups {
+		for i := len(labels); i <= 1000000; i++ {
+			intValues = append(intValues, i)
 		}
 	}
-	return -1
+
+	vc := valueCupMap{}
+	var prev *cup
+
+	for _, i := range intValues {
+		c := &cup{
+			value: i,
+		}
+		vc[i] = c
+		if prev != nil {
+			prev.next = c
+		}
+		prev = c
+	}
+	prev.next = vc[intValues[0]]
+	return vc, prev
 }
 
-func (c *cups) remove(value int) {
-	valIx := c.index(value)
-	temp := append([]int{}, c.values[:valIx]...)
-	c.values = append(temp, c.values[valIx+1:]...)
-}
-
-func playCrapGame(c *cups, moves int) {
-	current := -1
-	cups_len := len(c.values)
+func playCrabGame(vc valueCupMap, currentCup *cup, moves int) {
+	// Before the crab starts, it will designate the first cup in your list as the current cup.
+	start := time.Now()
+	fmt.Println("Started at", start)
 
 	// The crab is then going to do N moves.
 	for i := 1; i <= moves; i++ {
-		// Before the crab starts, it will designate the first cup in your list as the current cup.
-		current_ix := 0
-		if current != -1 {
-			current_ix = (c.index(current) + 1) % cups_len
+		if i%1000000 == 0 {
+			fmt.Println(i / 1000000)
+			fmt.Println(time.Since(start))
 		}
 		// The crab selects a new current cup: the cup which is immediately clockwise of the current cup.
-		current = c.values[current_ix]
+		currentCup = currentCup.next
 
-		// 2. Pick up cups
-		picked_up := []int{}
-		for j := 0; j < 3; j++ {
-			picked_up = append(picked_up, c.values[(current_ix+j+1)%cups_len])
+		// The crab picks up the three cups that are immediately clockwise of the current cup.
+		pickedUpCups := []*cup{
+			currentCup.next,
+			currentCup.next.next,
+			currentCup.next.next.next,
 		}
-		for _, p := range picked_up {
-			c.remove(p)
-		}
+		// They are removed from the circle;
+		currentCup.next = currentCup.next.next.next.next
 
 		// The crab selects a destination cup
+		destinationVal := currentCup.value
 		searching_dest := true
-		destination := current
-		if current == -1 {
-			destination = cups_len
-		}
 		for searching_dest {
-			// the cup with a label equal to the current cup's label minus one.
-			destination = destination - 1
-			// If at any point in this process the value goes below the lowest value on any cup's label,
-			// it wraps around to the highest value on any cup's label instead.
-			if destination <= 0 {
-				destination = cups_len
+			destinationVal = destinationVal - 1
+			if destinationVal <= 0 {
+				destinationVal = len(vc)
 			}
-			if !funk.Contains(picked_up, destination) {
+			if !funk.Contains(pickedUpCups, vc[destinationVal]) {
 				searching_dest = false
 			}
 		}
-		destination_ix := c.index(destination)
+		destination := vc[destinationVal]
 
 		// The crab places the cups it just picked up so that they are immediately clockwise of the destination cup.
-		temp := append([]int{}, c.values[:destination_ix+1]...)
-		temp = append(temp, picked_up...)
-		temp = append(temp, c.values[destination_ix+1:]...)
-		c.values = temp
+		pickedUpCups[2].next = destination.next
+		destination.next = pickedUpCups[0]
 	}
+
+	fmt.Println("Done after ", time.Since(start))
 }
 
-func solveA(c cups) string {
-	playCrapGame(&c, 100)
-
-	ix_1 := c.index(1)
-	result := append([]int{}, c.values[ix_1+1:]...)
-	result = append(result, c.values[:ix_1]...)
-
+func solveA(vc valueCupMap, currentCup *cup) string {
+	playCrabGame(vc, currentCup, 100)
 	str := ""
-	for _, val := range result {
-		str += strconv.Itoa(val)
+	for cup := vc[1].next; cup.value != 1; cup = cup.next {
+		str += strconv.Itoa(cup.value)
 	}
 	return str
 }
+
+// func solveB(c cups) int {
+// 	playCrabGame(&c, 10000)
+
+// 	ix_1 := c.index(1)
+// 	b := c.values[ix_1+1] * c.values[ix_1+2]
+// 	return b
+// }

@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/jraams/aoc-2020/helpers"
 )
@@ -23,6 +24,7 @@ func main() {
 }
 
 func solveA(d1 *list.List, d2 *list.List) int {
+	defer helpers.Measure(time.Now(), "")
 	gameRoundDeckMap := map[int]*map[int][]string{}
 	_, winningDeck := playSpaceCards(1, false, gameRoundDeckMap, d1, d2)
 	score := calculateScore(winningDeck)
@@ -30,6 +32,7 @@ func solveA(d1 *list.List, d2 *list.List) int {
 }
 
 func solveB(d1 *list.List, d2 *list.List) int {
+	defer helpers.Measure(time.Now(), "")
 	gameRoundDeckMap := map[int]*map[int][]string{}
 	_, winningDeck := playSpaceCards(1, true, gameRoundDeckMap, d1, d2)
 	score := calculateScore(winningDeck)

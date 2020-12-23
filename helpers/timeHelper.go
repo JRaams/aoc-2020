@@ -1,12 +1,16 @@
 package helpers
 
 import (
-	"log"
+	"fmt"
 	"time"
 )
 
 // Measure takes a starting time and message, and logs the amount of time that has passed after a function is done executing
 func Measure(start time.Time, message string) {
 	elapsed := time.Since(start)
-	log.Printf("%s took %s", message, elapsed)
+	if len(message) > 0 {
+		fmt.Printf("(%s: %s) ", message, elapsed)
+	} else {
+		fmt.Printf("(%s) ", elapsed)
+	}
 }

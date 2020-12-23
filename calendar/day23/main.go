@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/jraams/aoc-2020/helpers"
 )
@@ -24,6 +25,7 @@ func main() {
 }
 
 func solveA(vc valueCupMap, currentCup *cup) string {
+	defer helpers.Measure(time.Now(), "")
 	playCrabGame(vc, currentCup, 100)
 
 	str := ""
@@ -34,6 +36,7 @@ func solveA(vc valueCupMap, currentCup *cup) string {
 }
 
 func solveB(vc valueCupMap, currentCup *cup) int {
+	defer helpers.Measure(time.Now(), "")
 	playCrabGame(vc, currentCup, 10000000)
 
 	cup1 := vc[1]

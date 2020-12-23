@@ -62,14 +62,14 @@ func playCrabGame(vc valueCupMap, currentCup *cup, moves int) {
 
 		// The crab selects a destination cup
 		destinationVal := currentCup.value
-		searching_dest := true
-		for searching_dest {
+		searchingDest := true
+		for searchingDest {
 			destinationVal = destinationVal - 1
 			if destinationVal <= 0 {
 				destinationVal = len(vc)
 			}
 			if !funk.Contains(pickedUpCups, vc[destinationVal]) {
-				searching_dest = false
+				searchingDest = false
 			}
 		}
 		destination := vc[destinationVal]

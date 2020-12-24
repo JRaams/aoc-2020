@@ -1,4 +1,5 @@
 ```bash
 $ go run .
-(144ns) Solution day 24 part a: 317
+(8.205µs) Solution day 24 part a: 317
+(5.001979679s) Solution day 24 part b: 3804
 ```

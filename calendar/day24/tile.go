@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/thoas/go-funk"
 )
 
@@ -26,70 +23,51 @@ func (t *tileMap) flipTiles() {
 	for day := 1; day <= 100; day++ {
 		nextState := tileMap{}
 
-		startH := time.Now()
-		// Find all possible hexagon tiles
-		opts := tileMap{}
+		// Find all possible hexagon tile positions
+		opts := []pos{}
 		for x, yBlackMap := range *t {
-			if opts[x] == nil {
-				opts[x] = map[int]bool{}
-			}
-			for y, isBlack := range yBlackMap {
-				opts[x][y] = isBlack
+			for y := range yBlackMap {
+				opts = append(opts, pos{x, y})
 
 				for _, dp := range directions {
 					nextX := x + dp.x
 					nextY := y + dp.y
-					if opts[nextX] != nil {
-						if opts[nextX][nextY] {
-							continue
-						}
-					}
-					if opts[nextX] == nil {
-						opts[nextX] = map[int]bool{}
-					}
-					opts[nextX][nextY] = false
+					opts = append(opts, pos{x: nextX, y: nextY})
 				}
 			}
 		}
-		fmt.Printf("Find hex tile: %s\n", time.Since(startH))
 
-		startF := time.Now()
 		// > Every day, the tiles are all flipped according to the following rules:
-		for x, yBlackMap := range opts {
-			for y, isBlack := range yBlackMap {
-				adj := 0
-				for _, dp := range directions {
-					if funk.Contains(*t, x+dp.x) {
-						if funk.Contains((*t)[x+dp.x], y+dp.y) {
-							if (*t)[x+dp.x][y+dp.y] {
-								adj++
-							}
-						}
+		for _, pos := range opts {
+			adj := 0
+			for _, dp := range directions {
+				if (*t)[pos.x+dp.x] != nil {
+					if (*t)[pos.x+dp.x][pos.y+dp.y] {
+						adj++
 					}
 				}
+			}
 
-				if nextState[x] == nil {
-					nextState[x] = map[int]bool{}
-				}
+			if nextState[pos.x] == nil {
+				nextState[pos.x] = map[int]bool{}
+			}
 
-				// > Any black tile with zero or more than 2 black tiles immediately adjacent to it is flipped to white.
-				if isBlack && (adj == 0 || adj > 2) {
-					nextState[x][y] = false
+			isBlack := (*t)[pos.x][pos.y]
+			// > Any black tile with zero or more than 2 black tiles immediately adjacent to it is flipped to white.
+			if isBlack && (adj == 0 || adj > 2) {
+				nextState[pos.x][pos.y] = false
 
-					// > Any white tile with exactly 2 black tiles immediately adjacent to it is flipped to black.
-				} else if !isBlack && adj == 2 {
-					nextState[x][y] = true
-				} else {
-					nextState[x][y] = isBlack
-				}
+				// > Any white tile with exactly 2 black tiles immediately adjacent to it is flipped to black.
+			} else if !isBlack && adj == 2 {
+				nextState[pos.x][pos.y] = true
+			} else {
+				nextState[pos.x][pos.y] = isBlack
 			}
 		}
-		fmt.Printf("Flip tiles: %s\n", time.Since(startF))
 
 		// > The rules are applied simultaneously to every tile; put another way, it is first determined which tiles need
 		// > to be flipped, then they are all flipped at the same time.
 		*t = nextState
-		fmt.Printf("Day %d: %d\n", day, t.getBlackTiles())
 	}
 }
 
